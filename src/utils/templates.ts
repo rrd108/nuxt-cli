@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'pathe'
+
 import { upperFirst } from 'scule'
 
 interface TemplateOptions {
@@ -28,6 +31,19 @@ export default defineEventHandler((event) => {
 })
 `,
 })
+
+const apiWithPrisma: Template = ({ name, args }) => {
+  let contents = readFileSync(
+    join(__dirname, '../templates/apiWithPrisma.ts'),
+    'utf-8',
+  )
+  contents = contents.replace(/\$\{name\}/g, name)
+
+  return {
+    path: `server/api/${name}${applySuffix(args, httpMethods, 'method')}.ts`,
+    contents,
+  }
+}
 
 const plugin: Template = ({ name, args }) => ({
   path: `plugins/${name}${applySuffix(args, ['client', 'server'], 'mode')}.ts`,
@@ -109,6 +125,7 @@ const page: Template = ({ name }) => ({
 
 export const templates = {
   api,
+  apiWithPrisma,
   plugin,
   component,
   composable,
